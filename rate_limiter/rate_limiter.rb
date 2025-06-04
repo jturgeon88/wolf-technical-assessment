@@ -9,16 +9,21 @@ class RateLimiter
 
   def allow_request?(timestamp, user_id)
     queue = @user_requests[user_id]
-
-    while queue.any? && queue.first <= timestamp - @time_window
-      queue.shift
-    end
+    prune_old_requests!(queue, timestamp)
 
     if queue.size < @max_requests
       queue << timestamp
       true
     else
       false
+    end
+  end
+
+  private
+
+  def prune_old_requests!(queue, timestamp)
+    while queue.any? && queue.first <= timestamp - @time_window
+      queue.shift
     end
   end
 end
