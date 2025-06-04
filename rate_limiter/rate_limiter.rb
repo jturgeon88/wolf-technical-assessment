@@ -19,6 +19,15 @@ class RateLimiter
     end
   end
 
+  # For optional use. Frees memory by removing users whose request history
+  # has expired. Useful in large, long-lived systems to prevent excessive memory
+  # growth from inactive users.
+  def prune_inactive_users!(current_time)
+    @user_requests.delete_if do |_, timestamps|
+      timestamps.last && timestamps.last <= current_time - @time_window
+    end
+  end
+
   private
 
   def prune_old_requests!(queue, timestamp)
