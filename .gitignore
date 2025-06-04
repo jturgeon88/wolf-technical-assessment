@@ -1,0 +1,11 @@
+*.log
+*.sqlite3
+*.swp
+*.DS_Store
+coverage/
+tmp/
+log/
+.bundle/
+vendor/
+.byebug_history
+node_modules/
