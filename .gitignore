@@ -1,11 +1,34 @@
-*.log
-*.sqlite3
-*.swp
-*.DS_Store
+
+# Node.js
+node_modules/
+
+# Ruby
+*.gem
+*.rbc
+.bundle
+.config
+.yardoc
+_yardoc
 coverage/
+doc/
+pkg/
 tmp/
 log/
-.bundle/
-vendor/
 .byebug_history
-node_modules/
+.pry_history
+
+# Bundler
+vendor/bundle
+
+# RSpec
+.rspec_status
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor-specific
+*.swp
+*~
+.idea/
+.vscode/
