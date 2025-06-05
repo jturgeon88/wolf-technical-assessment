@@ -131,6 +131,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.18.8-x86_64-linux-gnu)
       racc (~> 1.4)
+    pagy (5.10.1)
+      activesupport
     pg (1.5.9)
     pp (0.6.2)
       prettyprint
@@ -203,6 +205,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   debug
+  pagy (~> 5.10)
   pg (~> 1.1)
   puma (>= 5.0)
   rails (~> 7.1.3)
