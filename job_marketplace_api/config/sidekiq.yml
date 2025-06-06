@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+:concurrency: 5
+:verbose: true
+:timeout: 25
+:queues:
+  - default
+  - mailers
+
+:redis:
+  url: <%= ENV.fetch('REDIS_URL_SIDEKIQ') { 'redis://localhost:6379/2' } %>
+  namespace: job_marketplace_sidekiq
