@@ -5,5 +5,5 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Opportunities API (index, create, apply)
-  resources :opportunities, only: [:index]
+  resources :opportunities, only: [:index, :create]
 end

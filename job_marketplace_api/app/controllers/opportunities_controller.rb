@@ -26,4 +26,33 @@ class OpportunitiesController < ApplicationController
       }
     }
   end
+
+  # POST /opportunities
+  # Creates a new opportunity on behalf of a client.
+  #
+  # @param opportunity [Hash] Required opportunity attributes including client_id.
+  # @return [JSON] The created opportunity or errors if creation fails.
+  def create
+    result = CreateOpportunity.call(params: opportunity_params)
+
+    if result.success?
+      render json: result.opportunity, status: :created
+    else
+      render json: { errors: result.errors }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def opportunity_params
+    params.require(:opportunity).permit(
+      :title,
+      :description,
+      :salary,
+      :location,
+      :employment_type,
+      :remote,
+      :client_id
+    )
+  end
 end

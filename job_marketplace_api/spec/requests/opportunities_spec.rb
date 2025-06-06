@@ -54,4 +54,53 @@ RSpec.describe "Opportunities API", type: :request do
       expect(json["opportunities"].first["title"]).to eq("DevOps Engineer")
     end
   end
+
+  describe "POST /opportunities" do
+    let!(:client) { Client.create!(name: "ACME Corp", email: "acme@example.com") }
+
+    let(:valid_params) do
+      {
+        opportunity: {
+          title: "Ruby Engineer",
+          description: "Write clean Ruby code",
+          salary: 120_000,
+          location: "NYC",
+          employment_type: "full-time",
+          remote: false,
+          client_id: client.id
+        }
+      }
+    end
+
+    it "creates an opportunity with valid params" do
+      post "/opportunities", params: valid_params.to_json, headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json["title"]).to eq("Ruby Engineer")
+      expect(Opportunity.count).to eq(1)
+    end
+
+    it "returns 422 if required fields are missing" do
+      invalid = valid_params.deep_dup
+      invalid[:opportunity].delete(:title)
+
+      post "/opportunities", params: invalid.to_json, headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Title can't be blank")
+    end
+
+    it "returns 422 if client_id is invalid" do
+      bad_client = valid_params.deep_dup
+      bad_client[:opportunity][:client_id] = 9999
+
+      post "/opportunities", params: bad_client.to_json, headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Client must exist")
+    end
+  end
 end
