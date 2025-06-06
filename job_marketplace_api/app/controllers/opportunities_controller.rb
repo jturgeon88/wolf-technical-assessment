@@ -42,6 +42,29 @@ class OpportunitiesController < ApplicationController
     end
   end
 
+  # POST /opportunities/:id/apply
+  # Allows a job seeker to apply for an opportunity.
+  #
+  # @param id [Integer] The ID of the opportunity to apply for.
+  # @param application [Hash] Contains job_seeker_id to apply with.
+  # @return [JSON] The created job application or errors if application fails.
+  def apply
+    result = ApplyToOpportunity.call(
+      opportunity_id: params[:id],
+      job_seeker_id: application_params[:job_seeker_id]
+    )
+
+    if result.success?
+      render json: result.job_application, status: :created
+    else
+      render json: { errors: result.errors }, status: :unprocessable_entity
+    end
+  rescue ActionController::ParameterMissing => e
+    render json: { errors: [e.message] }, status: :unprocessable_entity
+  end
+
+
+
   private
 
   def opportunity_params
@@ -54,5 +77,9 @@ class OpportunitiesController < ApplicationController
       :remote,
       :client_id
     )
+  end
+
+  def application_params
+    params.require(:application).permit(:job_seeker_id)
   end
 end

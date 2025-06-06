@@ -103,4 +103,61 @@ RSpec.describe "Opportunities API", type: :request do
       expect(json["errors"]).to include("Client must exist")
     end
   end
+
+  describe "POST /opportunities/:id/apply" do
+    let!(:client) { Client.create!(name: "ACME Corp", email: "acme@example.com") }
+    let!(:opportunity) do
+      Opportunity.create!(
+        title: "QA Engineer",
+        description: "Test everything twice",
+        salary: 90_000,
+        location: "Remote",
+        employment_type: "full-time",
+        remote: true,
+        client: client
+      )
+    end
+    let!(:job_seeker) { JobSeeker.create!(name: "Josh Dev", email: "josh@example.com") }
+
+    it "creates a job application successfully" do
+      post "/opportunities/#{opportunity.id}/apply",
+        params: { application: { job_seeker_id: job_seeker.id } }.to_json,
+        headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json["job_seeker_id"]).to eq(job_seeker.id)
+      expect(json["opportunity_id"]).to eq(opportunity.id)
+    end
+
+    it "returns 422 if job_seeker_id is missing" do
+      post "/opportunities/#{opportunity.id}/apply",
+        params: { application: {} }.to_json,
+        headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("param is missing or the value is empty: application")
+    end
+
+    it "returns 422 if job_seeker does not exist" do
+      post "/opportunities/#{opportunity.id}/apply",
+        params: { application: { job_seeker_id: 999 } }.to_json,
+        headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Invalid opportunity or job seeker")
+    end
+
+    it "returns 422 if opportunity does not exist" do
+      post "/opportunities/999/apply",
+        params: { application: { job_seeker_id: job_seeker.id } }.to_json,
+        headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json["errors"]).to include("Invalid opportunity or job seeker")
+    end
+  end
 end
