@@ -13,5 +13,10 @@ class ApplicationNotificationWorker
       job_seeker_email,
       client_email
     ).deliver_now
+
+    Rails.logger.info "Sidekiq Worker: Processing complete and email sent for Job Application ID: #{job_application_id}"
+  rescue => e
+    Rails.logger.error "Sidekiq Worker: Error processing job application #{job_application_id}: #{e.message}"
+    raise e
   end
 end

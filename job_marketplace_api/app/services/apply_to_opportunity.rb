@@ -13,7 +13,7 @@ class ApplyToOpportunity
   end
 
   def call
-    opportunity = Opportunity.find_by(id: @opportunity_id)
+    opportunity = Opportunity.includes(:client).find_by(id: @opportunity_id)
     job_seeker = JobSeeker.find_by(id: @job_seeker_id)
 
     unless opportunity && job_seeker
@@ -23,6 +23,13 @@ class ApplyToOpportunity
     application = JobApplication.new(opportunity: opportunity, job_seeker: job_seeker)
 
     if application.save
+      ApplicationNotificationWorker.perform_async(
+        application.id,
+        opportunity.title,
+        job_seeker.email,
+        opportunity.client.email
+      )
+
       Result.new(success?: true, job_application: application)
     else
       Result.new(success?: false, errors: application.errors.full_messages)
