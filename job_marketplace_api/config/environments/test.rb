@@ -23,10 +23,16 @@ Rails.application.configure do
     "Cache-Control" => "public, max-age=#{1.hour.to_i}"
   }
 
-  # Show full error reports and disable caching.
+  # Show full error reports
   config.consider_all_requests_local = true
-  config.action_controller.perform_caching = false
-  config.cache_store = :null_store
+
+  # Configure Redis for caching for tests
+  config.action_controller.perform_caching = true
+  config.cache_store = :redis_store, {
+    url: ENV.fetch('REDIS_URL_TEST') { 'redis://localhost:6379/1' },
+    db: 1,
+    namespace: 'cache:job_marketplace_api_test'
+  }
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
